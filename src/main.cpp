@@ -1,7 +1,8 @@
 #include<iostream>
 #include<vector>
 #include "Transaction.h"
-
+#include<fstream>
+#include<sstream>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -35,9 +36,46 @@ void viewTransactions(){
     cout << endl;
 }
 
+void saveToFile(const string &filename){
+    ofstream file(filename);
+    if(!file){
+        cout<<"Could not open the file.\n";
+        return;
+    }
+    for(const Transaction &t: transactions){
+        file << t.getType() <<","
+             << t.getAmount() <<","
+             << t.getCategory() <<","
+             << t.getDate() <<"\n";
+    }
+    file.close();
+}
+void loadFromFile(const string &filename){
+    ifstream file("data.csv");
+    if(!file) {
+        cout<<"Could not open file.\n";
+        return;
+    }
+    string line;
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string type, category, date, amountStr;
+        float amount;
+
+        getline(ss, type, ',');
+        getline(ss, amountStr, ',');
+        getline(ss, category, ',');
+        getline(ss, date, ',');      
+        
+        amount = stof(amountStr);
+        Transaction t(type, amount, category, date);
+        transactions.push_back(t);
+    }
+}
 int main() {
     int choice;
-
+    loadFromFile("data.csv");
     do {
         cout << "\n====== Finance Tracker Menu ======\n";
         cout << "1. Add Transaction\n";
@@ -55,6 +93,7 @@ int main() {
                 break;
             case 3:
                 cout << "👋 Exiting program.\n";
+                saveToFile("data.csv");
                 break;
             default:
                 cout << "❌ Invalid choice. Try again.\n";
