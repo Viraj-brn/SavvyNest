@@ -3,6 +3,7 @@
 #include "Transaction.h"
 #include<fstream>
 #include<sstream>
+#include<algorithm>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -29,9 +30,27 @@ void viewTransactions(){
         cout<<"No transactions to display.\n";
         return;
     }
-    cout << "\nTransaction History:\n";
+    string filterType, filterCategory;
+    cout<<"Filter by type(Income/Expense or All): ";
+    cin>>filterType;
+    cout<<"Filter by category(or All): ";
+    cin>>filterCategory;
+
+    transform(filterType.begin(), filterType.end(), filterType.begin(), ::tolower);
+    transform(filterCategory.begin(), filterCategory.end(), filterCategory.begin(), ::tolower);
+
+    cout << "\nFiltered Transaction History:\n";
     for (const auto &t : transactions) {
-        t.display();
+        string tType = t.getType(), tCategory = t.getCategory();
+        transform(tType.begin(), tType.end(), tType.begin(), ::tolower);
+        transform(tCategory.begin(), tCategory.end(), tCategory.begin(), ::tolower);
+
+        bool matchType = (filterType == "all" || filterType == tType);
+        bool matchCategory = (filterCategory == "all" || filterCategory == tCategory);
+
+        if(matchCategory && matchType){
+            t.display();
+        }
     }
     cout << endl;
 }
