@@ -4,6 +4,7 @@
 #include<fstream>
 #include<sstream>
 #include<algorithm>
+#include<iomanip>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -55,6 +56,26 @@ void viewTransactions(){
     cout << endl;
 }
 
+void showSummary() {
+    float total_income = 0.0f, total_expense = 0.0f;
+
+    for (const auto &t : transactions) {
+        string type = t.getType();
+        transform(type.begin(), type.end(), type.begin(), ::tolower);
+
+        if (type == "income") total_income += t.getAmount();
+        else if (type == "expense") total_expense += t.getAmount();
+    }
+
+    float balance = total_income - total_expense;
+
+    cout << fixed << setprecision(2);
+    cout << "\nSummary:\n";
+    cout << "Total Income  : $" << total_income << endl;
+    cout << "Total Expense : $" << total_expense << endl;
+    cout << "Net Balance   : $" << balance << endl;
+}
+
 void saveToFile(const string &filename){
     ofstream file(filename);
     if(!file){
@@ -99,7 +120,8 @@ int main() {
         cout << "\n====== Finance Tracker Menu ======\n";
         cout << "1. Add Transaction\n";
         cout << "2. View Transactions\n";
-        cout << "3. Exit\n";
+        cout << "3. Show Summary\n";
+        cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -111,6 +133,9 @@ int main() {
                 viewTransactions();
                 break;
             case 3:
+                showSummary();
+                break;
+            case 4:
                 cout << "👋 Exiting program.\n";
                 saveToFile("data.csv");
                 break;
