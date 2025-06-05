@@ -5,6 +5,7 @@
 #include<sstream>
 #include<algorithm>
 #include<iomanip>
+#include<string>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -75,6 +76,63 @@ void showSummary() {
     cout << "Total Expense : $" << total_expense << endl;
     cout << "Net Balance   : $" << balance << endl;
 }
+int convertDate(string date) {
+    string arr[3];
+    string temp = "";
+    int j = 0;
+
+    for (int i = 0; i < date.length(); i++) {
+        if (date[i] == '-') {
+            arr[j++] = temp;
+            temp = "";
+        } else {
+            temp += date[i];
+        }
+    }
+    arr[j] = temp; 
+
+    string res = arr[2] + arr[1] + arr[0];  
+    return stoi(res);
+}
+
+void sortTransactions(){
+    int c;
+    cout<<"Sort Transactions by: \n 1. Amount \n2. Date \n Select an option: ";
+    cin>>c;
+    char s;
+    if(c==1) {
+        cout<<"Pick sorting order: \n A. Ascending \n D. Descending \n Choose:";
+        cin>>s;
+        if(tolower(s) == 'a'){
+            sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b){
+            return a.getAmount() < b.getAmount(); // ascending
+            });
+        }
+        else if(tolower(s) == 'd'){
+            sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b){
+            return a.getAmount() > b.getAmount(); // descending
+            });
+        }
+    }
+    else if(c==2){
+        cout<<"Pick sorting order: \n A. Ascending \n D. Descending \n Choose:";
+        cin>>s;
+        if(tolower(s) == 'a'){
+            sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b) {
+            return convertDate(a.getDate()) < convertDate(b.getDate());
+            });
+
+        }
+        else if(tolower(s) == 'd'){
+        sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b) {
+            return convertDate(a.getDate()) > convertDate(b.getDate());
+            });
+
+        }
+    }
+    else {cout<<"Invalid choice!\n";}
+    cout<<"Transactions Sorted Successfully.\n";
+}
 
 void saveToFile(const string &filename){
     ofstream file(filename);
@@ -121,7 +179,8 @@ int main() {
         cout << "1. Add Transaction\n";
         cout << "2. View Transactions\n";
         cout << "3. Show Summary\n";
-        cout << "4. Exit\n";
+        cout << "4. Sort Transactions\n";
+        cout << "5. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -136,6 +195,9 @@ int main() {
                 showSummary();
                 break;
             case 4:
+                sortTransactions();
+                break;
+            case 5:
                 cout << "👋 Exiting program.\n";
                 saveToFile("data.csv");
                 break;
