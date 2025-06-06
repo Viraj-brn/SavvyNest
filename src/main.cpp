@@ -5,10 +5,12 @@
 #include<sstream>
 #include<algorithm>
 #include<iomanip>
+#include<stack>
 #include<string>
 using namespace std;
 
 vector<Transaction> transactions;
+stack<pair<int, Transaction>> deletedStack;
 
 void addTransaction(){
     string type, category, date;
@@ -134,6 +136,118 @@ void sortTransactions(){
     cout<<"Transactions Sorted Successfully.\n";
 }
 
+void editTransaction(){
+    int i = 1;
+    cout<<"Here's a list of your transactions....\n";
+    for(auto &t: transactions){
+        cout<<i<<".";
+        t.display();
+        i++;
+    }
+    int c;
+    cout<<"Pick a transaction number to edit:";
+    cin>>c;
+    if(c > transactions.size()-1 || c<=0) cout<<"Invalid input, transaction does not exist!!\n";
+    else {
+        int x;
+        cout<<"Select a field to edit:\n 1. Type\n2. Amount\n3. Category\n4. Date\n5. Exit\nPick:";
+        cin>>x;
+        if(x<1 || x>5) cout<<"Invalid field selection!!\n";
+        else{
+        switch (x){
+        case 1:{
+            string s;
+            cout<<"Enter the new Transaction type:";
+            cin>>s;
+            transactions[c-1].setType(s);
+            cout<<"Transaction Type changed to "<<s<<endl;
+            break;
+        }
+        case 2:{
+            float amt;
+            cout<<"Enter the new Transaction amount:";
+            cin>>amt;
+            transactions[c-1].setAmount(amt);
+            cout<<"Transaction Amount changed to "<<amt<<endl;
+            break;
+        }
+        case 3:{
+            string cat;
+            cout<<"Enter the new Transaction category:";
+            cin>>c;
+            transactions[c-1].setCategory(cat);
+            cout<<"Transaction Category changed to "<<cat<<endl;
+            break;
+        }
+        case 4:{
+            string d;
+            cout<<"Enter the new Transaction date:";
+            cin>>d;
+            transactions[c-1].setDate(d);
+            cout<<"Transaction Type changed to "<<d<<endl;
+            break;
+        }
+        case 5:
+            cout<<"No changes made....Exiting";
+            break;
+        }
+    }
+    }
+}
+
+void deleteTransaction() {
+    int i = 1;
+    cout << "Here's a list of your transactions....\n";
+    for (const auto &t : transactions) {
+        cout << i << ". ";
+        t.display();
+        i++;
+    }
+    while (true) {
+        int c;
+        cout << "Pick a transaction number to delete: ";
+        cin >> c;
+
+        if (c > transactions.size() || c <= 0) {
+            cout << "Invalid input, transaction does not exist!!\n";
+        } else {
+            // Save deleted transaction and its position
+            deletedStack.push({c - 1, transactions[c - 1]});
+            transactions.erase(transactions.begin() + (c - 1));
+            cout << "Transaction deleted successfully.\n";
+        }
+
+        char o;
+        cout << "Do you wish to delete more transactions? (y/n): ";
+        cin >> o;
+        if (tolower(o) != 'y') break;
+        
+        // Display updated list
+        i = 1;
+        for (const auto &t : transactions) {
+            cout << i << ". ";
+            t.display();
+            i++;
+        }
+    }
+    // Undo prompt
+    char u;
+    cout << "Would you like to undo the last deletion(s)? (y/n): ";
+    cin >> u;
+    while (tolower(u) == 'y' && !deletedStack.empty()) {
+        auto [pos, trans] = deletedStack.top();
+        deletedStack.pop();
+        if (pos >= transactions.size())
+            transactions.push_back(trans);
+        else
+            transactions.insert(transactions.begin() + pos, trans);
+        cout << "🔁 Undo successful.\n";
+
+        cout << "Undo more? (y/n): ";
+        cin >> u;
+    }
+}
+
 void saveToFile(const string &filename){
     ofstream file(filename);
     if(!file){
@@ -180,7 +294,9 @@ int main() {
         cout << "2. View Transactions\n";
         cout << "3. Show Summary\n";
         cout << "4. Sort Transactions\n";
-        cout << "5. Exit\n";
+        cout << "5. Edit Transaction\n";
+        cout << "6. Delete Transaction\n";
+        cout << "7. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -198,6 +314,12 @@ int main() {
                 sortTransactions();
                 break;
             case 5:
+                editTransaction();
+                break;
+            case 6:
+                deleteTransaction();
+                break;
+            case 7:
                 cout << "👋 Exiting program.\n";
                 saveToFile("data.csv");
                 break;

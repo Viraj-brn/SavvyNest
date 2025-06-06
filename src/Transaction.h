@@ -18,6 +18,11 @@ public:
     float getAmount() const;
     std::string getCategory() const;
     std::string getDate() const;
+
+    void setType(const std::string &t);
+    void setAmount(float a);
+    void setCategory(const std::string &c);
+    void setDate(const std::string &d);
 };
 
 #endif
