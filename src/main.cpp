@@ -241,10 +241,81 @@ void deleteTransaction() {
             transactions.push_back(trans);
         else
             transactions.insert(transactions.begin() + pos, trans);
-        cout << "🔁 Undo successful.\n";
+        cout << "Undo successful.\n";
 
         cout << "Undo more? (y/n): ";
         cin >> u;
+    }
+}
+
+void searchTransaction() {
+    int r = 1;
+    while (r) {
+        bool found = false;
+        int c;
+        cout << "Pick a search criterion:\n"<< "1. Type\n2. Category\n3. Amount\n4. Date\n5. Exit searching\nPick: ";
+        cin >> c;
+
+        switch (c) {
+            case 1: {
+                string type;
+                cout << "Enter the transaction type (Income/Expense): ";
+                cin >> type;
+                for (const auto &t : transactions) {
+                    if (t.getType() == type) {
+                        t.display();
+                        found = true;
+                    }
+                }
+                break;
+            }
+            case 2: {
+                string cat;
+                cout << "Enter the transaction Category: ";
+                cin >> cat;
+                for (const auto &t : transactions) {
+                    if (t.getCategory() == cat) {
+                        t.display();
+                        found = true;
+                    }
+                }
+                break;
+            }
+            case 3: {
+                float amount;
+                cout << "Enter the transaction amount: ";
+                cin >> amount;
+                for (const auto &t : transactions) {
+                    if (t.getAmount() == amount) {
+                        t.display();
+                        found = true;
+                    }
+                }
+                break;
+            }
+            case 4: {
+                string date;
+                cout << "Enter the transaction date (YYYY-MM-DD): ";
+                cin >> date;
+                for (const auto &t : transactions) {
+                    if (t.getDate() == date) {
+                        t.display();
+                        found = true;
+                    }
+                }
+                break;
+            }
+            case 5: {
+                r = 0;
+                cout << "__You ended your search session__\n";
+                break;
+            }
+            default:
+                cout << "Invalid input, try again!!\n";
+        }
+        if (c >= 1 && c <= 4 && !found) {
+            cout << "No matching transactions found.\n";
+        }
     }
 }
 
@@ -296,7 +367,8 @@ int main() {
         cout << "4. Sort Transactions\n";
         cout << "5. Edit Transaction\n";
         cout << "6. Delete Transaction\n";
-        cout << "7. Exit\n";
+        cout << "7. Search Transaction\n";
+        cout << "8. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -320,11 +392,13 @@ int main() {
                 deleteTransaction();
                 break;
             case 7:
-                cout << "👋 Exiting program.\n";
+                searchTransaction();
+            case 8:
+                cout << "Exiting program.\n";
                 saveToFile("data.csv");
                 break;
             default:
-                cout << "❌ Invalid choice. Try again.\n";
+                cout << "Invalid choice. Try again.\n";
         }
 
     } while (choice != 3);
