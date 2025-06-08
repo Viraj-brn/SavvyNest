@@ -136,73 +136,101 @@ void sortTransactions(){
     cout<<"Transactions Sorted Successfully.\n";
 }
 
-void editTransaction(){
-    int i = 1;
-    cout<<"Here's a list of your transactions....\n";
-    for(auto &t: transactions){
-        cout<<i<<".";
-        t.display();
-        i++;
-    }
-    int c;
-    cout<<"Pick a transaction number to edit:";
-    cin>>c;
-    if(c > transactions.size()-1 || c<=0) cout<<"Invalid input, transaction does not exist!!\n";
-    else {
-        int x;
-        cout<<"Select a field to edit:\n 1. Type\n2. Amount\n3. Category\n4. Date\n5. Exit\nPick:";
-        cin>>x;
-        if(x<1 || x>5) cout<<"Invalid field selection!!\n";
-        else{
-        switch (x){
-        case 1:{
-            string s;
-            cout<<"Enter the new Transaction type:";
-            cin>>s;
-            transactions[c-1].setType(s);
-            cout<<"Transaction Type changed to "<<s<<endl;
-            break;
-        }
-        case 2:{
-            float amt;
-            cout<<"Enter the new Transaction amount:";
-            cin>>amt;
-            transactions[c-1].setAmount(amt);
-            cout<<"Transaction Amount changed to "<<amt<<endl;
-            break;
-        }
-        case 3:{
-            string cat;
-            cout<<"Enter the new Transaction category:";
-            cin>>c;
-            transactions[c-1].setCategory(cat);
-            cout<<"Transaction Category changed to "<<cat<<endl;
-            break;
-        }
-        case 4:{
-            string d;
-            cout<<"Enter the new Transaction date:";
-            cin>>d;
-            transactions[c-1].setDate(d);
-            cout<<"Transaction Type changed to "<<d<<endl;
-            break;
-        }
-        case 5:
-            cout<<"No changes made....Exiting";
-            break;
-        }
-    }
-    }
-}
-
-void deleteTransaction() {
+void editTransaction() {
     int i = 1;
     cout << "Here's a list of your transactions....\n";
-    for (const auto &t : transactions) {
+    for (auto &t : transactions) {
         cout << i << ". ";
         t.display();
         i++;
     }
+
+    int c;
+    cout << "Pick a transaction number to edit: ";
+    cin >> c;
+
+    if (c > transactions.size() || c <= 0) {
+        cout << "Invalid input, transaction does not exist!!\n";
+        return;
+    }
+
+    int x;
+    cout << "Select a field to edit:\n 1. Type\n 2. Amount\n 3. Category\n 4. Date\n 5. Exit\nPick: ";
+    cin >> x;
+
+    if (x < 1 || x > 5) {
+        cout << "Invalid field selection!!\n";
+        return;
+    }
+
+    if (x == 5) {
+        cout << "No changes made....Exiting\n";
+        return;
+    }
+    deletedStack.push({c - 1, transactions[c - 1]});
+
+    switch (x) {
+        case 1: {
+            string s;
+            cout << "Enter the new Transaction type: ";
+            cin >> s;
+            transactions[c - 1].setType(s);
+            cout << "Transaction Type changed to " << s << endl;
+            break;
+        }
+        case 2: {
+            float amt;
+            cout << "Enter the new Transaction amount: ";
+            cin >> amt;
+            transactions[c - 1].setAmount(amt);
+            cout << "Transaction Amount changed to " << amt << endl;
+            break;
+        }
+        case 3: {
+            string cat;
+            cout << "Enter the new Transaction category: ";
+            cin >> cat;
+            transactions[c - 1].setCategory(cat);
+            cout << "Transaction Category changed to " << cat << endl;
+            break;
+        }
+        case 4: {
+            string d;
+            cout << "Enter the new Transaction date: ";
+            cin >> d;
+            transactions[c - 1].setDate(d);
+            cout << "Transaction Date changed to " << d << endl;
+            break;
+        }
+    }
+
+    // Undo prompt
+    char u;
+    cout << "Would you like to undo the last change? (y/n): ";
+    cin >> u;
+    while (tolower(u) == 'y' && !deletedStack.empty()) {
+        auto [pos, trans] = deletedStack.top();
+        deletedStack.pop();
+        transactions[pos] = trans;
+        cout << "Undo successful.\n";
+
+        cout << "Undo more? (y/n): ";
+        cin >> u;
+    }
+}
+void deleteTransaction() {
+    auto displayTransactions = []() {
+        cout << "Here's a list of your transactions....\n";
+        int i = 1;
+        for (const auto &t : transactions) {
+            cout << i << ". ";
+            t.display();
+            i++;
+        }
+    };
+
+    displayTransactions();
+
     while (true) {
         int c;
         cout << "Pick a transaction number to delete: ";
@@ -211,7 +239,6 @@ void deleteTransaction() {
         if (c > transactions.size() || c <= 0) {
             cout << "Invalid input, transaction does not exist!!\n";
         } else {
-            // Save deleted transaction and its position
             deletedStack.push({c - 1, transactions[c - 1]});
             transactions.erase(transactions.begin() + (c - 1));
             cout << "Transaction deleted successfully.\n";
@@ -221,15 +248,10 @@ void deleteTransaction() {
         cout << "Do you wish to delete more transactions? (y/n): ";
         cin >> o;
         if (tolower(o) != 'y') break;
-        
-        // Display updated list
-        i = 1;
-        for (const auto &t : transactions) {
-            cout << i << ". ";
-            t.display();
-            i++;
-        }
+
+        displayTransactions();
     }
+
     // Undo prompt
     char u;
     cout << "Would you like to undo the last deletion(s)? (y/n): ";
@@ -237,10 +259,14 @@ void deleteTransaction() {
     while (tolower(u) == 'y' && !deletedStack.empty()) {
         auto [pos, trans] = deletedStack.top();
         deletedStack.pop();
-        if (pos >= transactions.size())
+
+        // Safely reinsert at the correct position
+        if (pos >= transactions.size()) {
             transactions.push_back(trans);
-        else
+        } else {
             transactions.insert(transactions.begin() + pos, trans);
+        }
+
         cout << "Undo successful.\n";
 
         cout << "Undo more? (y/n): ";
@@ -253,7 +279,8 @@ void searchTransaction() {
     while (r) {
         bool found = false;
         int c;
-        cout << "Pick a search criterion:\n"<< "1. Type\n2. Category\n3. Amount\n4. Date\n5. Exit searching\nPick: ";
+        cout << "\nPick a search criterion:\n"
+             << "1. Type\n2. Category\n3. Amount\n4. Date\n5. Exit searching\nPick: ";
         cin >> c;
 
         switch (c) {
@@ -263,6 +290,7 @@ void searchTransaction() {
                 cin >> type;
                 for (const auto &t : transactions) {
                     if (t.getType() == type) {
+                        if (!found) cout << "Matching transactions:\n";
                         t.display();
                         found = true;
                     }
@@ -271,10 +299,11 @@ void searchTransaction() {
             }
             case 2: {
                 string cat;
-                cout << "Enter the transaction Category: ";
+                cout << "Enter the transaction category: ";
                 cin >> cat;
                 for (const auto &t : transactions) {
                     if (t.getCategory() == cat) {
+                        if (!found) cout << "Matching transactions:\n";
                         t.display();
                         found = true;
                     }
@@ -287,6 +316,7 @@ void searchTransaction() {
                 cin >> amount;
                 for (const auto &t : transactions) {
                     if (t.getAmount() == amount) {
+                        if (!found) cout << "Matching transactions:\n";
                         t.display();
                         found = true;
                     }
@@ -299,17 +329,17 @@ void searchTransaction() {
                 cin >> date;
                 for (const auto &t : transactions) {
                     if (t.getDate() == date) {
+                        if (!found) cout << "Matching transactions:\n";
                         t.display();
                         found = true;
                     }
                 }
                 break;
             }
-            case 5: {
+            case 5:
                 r = 0;
                 cout << "__You ended your search session__\n";
                 break;
-            }
             default:
                 cout << "Invalid input, try again!!\n";
         }
@@ -318,6 +348,7 @@ void searchTransaction() {
         }
     }
 }
+
 
 void saveToFile(const string &filename){
     ofstream file(filename);
