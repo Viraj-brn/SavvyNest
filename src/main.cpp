@@ -7,6 +7,7 @@
 #include<iomanip>
 #include<stack>
 #include<string>
+#include<unordered_set>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -58,25 +59,108 @@ void viewTransactions(){
     }
     cout << endl;
 }
-
+string convertToLower(string s){
+    string converted = "";
+    for (int i = 0; i < s.length(); i++)
+    {
+        if(isupper(s[i])) converted += tolower(s[i]);
+        else converted += s[i];
+    }
+    return converted;
+}
 void showSummary() {
-    float total_income = 0.0f, total_expense = 0.0f;
+    vector<Transaction> filtered;
 
-    for (const auto &t : transactions) {
+    int choice;
+     cout << "1. Full summary\n2. Filter by categories\n3. Custom date range\n4. Specific month\n5. Specific year\nPick: ";
+    cin >> choice;
+    if(choice == 1) filtered = transactions;
+    else if (choice == 2) {
+        unordered_set<string> s;
+        string cat;
+        int cat_cnt = 0;
+        while (true)
+        {
+            cout<<"Enter the category: ";
+            cin>>cat;
+            cat_cnt++;
+            cout<<cat_cnt<<" categories stored\n";
+            s.insert(convertToLower(cat));
+            cout<<"Do you wish to enter more categories(y/n): ";
+            char op;
+            cin>>op;
+            if(tolower(op) == 'n') break;
+            else if(tolower(op) == 'y') continue;
+            else {
+                cout<<"Invalid input, expected a y/n only!!\n";
+                break;
+            }
+        }
+        for(const auto &t: transactions){
+            if(s.find(convertToLower(t.getCategory())) != s.end()) filtered.push_back(t);
+        }
+    }
+    else if(choice == 3) {
+        string from, to;
+        cout<<"Enter start date(YYYY-MM-DD): ";
+        cin>> from;
+        cout<<"Enter end date(YYYY-MM-DD): ";
+        cin>> to;
+        for(const auto &t: transactions){
+            string date = t.getDate();
+            if(date>=from && date<=to) filtered.push_back(t);
+        }
+    }  
+    else if(choice == 4) {
+        string year, month;
+        cout<< "Enter year(YYYY): ";
+        cin>>year;
+        cout<< "Enter month (MM): ";
+        cin>>month;
+        string prefix = year + '-' + month;
+        for(const auto &t: transactions){
+            if(t.getDate().substr(0,7) == prefix) filtered.push_back(t);
+        }
+    }
+     else if (choice == 5) {
+        string year;
+        cout << "Enter year (YYYY): ";
+        cin >> year;
+        for (const auto &t : transactions) {
+            if (t.getDate().substr(0, 4) == year) filtered.push_back(t);
+        }
+    }
+    else {
+        cout<<"Invalid choice. Returning. \n";
+        return; 
+    } 
+    float total_income = 0.0f, total_expense = 0.0f;
+    int inc_cnt = 0, exp_cnt = 0;
+    float mx_income = INT_MIN, mn_income = INT_MAX;
+    for (const auto &t : filtered) {
         string type = t.getType();
         transform(type.begin(), type.end(), type.begin(), ::tolower);
-
-        if (type == "income") total_income += t.getAmount();
-        else if (type == "expense") total_expense += t.getAmount();
+        if (type == "income"){
+            inc_cnt++;
+            total_income += t.getAmount();
+            mx_income = max(mx_income, t.getAmount());
+        }
+        else if (type == "expense") {
+            exp_cnt++;
+            total_expense += t.getAmount();
+            mn_income = min(mn_income, t.getAmount());
+        }
     }
 
     float balance = total_income - total_expense;
 
     cout << fixed << setprecision(2);
     cout << "\nSummary:\n";
-    cout << "Total Income  : $" << total_income << endl;
-    cout << "Total Expense : $" << total_expense << endl;
-    cout << "Net Balance   : $" << balance << endl;
+    cout << "Total Income  : ₹" << total_income <<"\t\tNumber of incomes: ₹" <<inc_cnt<< endl;
+    cout << "Total Expense : ₹" << total_expense <<"\t\tNumber of expenses: ₹" <<exp_cnt<< endl;
+    cout << "Net Balance   : ₹" << balance << endl<<endl;
+    cout << "Highest Income: ₹" << mx_income<<endl;
+    cout << "Higest Expense: ₹" << mn_income<<endl;
 }
 int convertDate(string date) {
     string arr[3];
