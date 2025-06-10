@@ -8,26 +8,74 @@
 #include<stack>
 #include<string>
 #include<unordered_set>
+#include<unordered_map>
 using namespace std;
 
 vector<Transaction> transactions;
 stack<pair<int, Transaction>> deletedStack;
+unordered_map<string, float> monthlyBudget;
+unordered_map<string, float> monthlySpent;
 
-void addTransaction(){
+string convertToLower(string s){
+    string converted = "";
+    for (int i = 0; i < s.length(); i++)
+    {
+        if(isupper(s[i])) converted += tolower(s[i]);
+        else converted += s[i];
+    }
+    return converted;
+
+}
+bool checkMonthlyLimit(const string &month_year, float amount) {
+    if (monthlyBudget.find(month_year) == monthlyBudget.end()) return true;
+    return (monthlySpent[month_year] + amount <= monthlyBudget[month_year]);
+}
+
+void addTransaction() {
     string type, category, date;
     float amount;
-    cout<<"Enter transaction type(Income/ Expense):";
-    cin>>type;
-    cout<<"Enter amount:";
-    cin>>amount;
-    cout<<"Enter category(eg: salary, food, rent, etc):";
-    cin>>category;
-    cout<<"Enter date(DD-MM-YYYY)";
-    cin>>date;
+    cout << "Enter transaction type (Income/Expense): ";
+    cin >> type;
+    cout << "Enter amount: ";
+    cin >> amount;
+    cout << "Enter category (e.g., salary, food, rent, etc): ";
+    cin >> category;
+    cout << "Enter date (DD-MM-YYYY): ";
+    cin >> date;
+
+    string month_year = date.substr(3);
+
+    if (convertToLower(type) == "expense") {
+        if (!checkMonthlyLimit(month_year, amount)) {
+            cout << "You are exceeding the monthly spending limit!\n";
+            return;
+        }
+        monthlySpent[month_year] += amount;
+    }
 
     Transaction newTransaction(type, amount, category, date);
     transactions.push_back(newTransaction);
-    cout<<"Transaction added successfully.\n";
+    cout << "Transaction added successfully.\n";
+}
+
+void setMonthlyLimit() {
+    string month, year;
+    float limit;
+
+    cout << "Enter year (YYYY): ";
+    cin >> year;
+    cout << "Enter month (MM): ";
+    cin >> month;
+
+    if (month.size() == 1) month = "0" + month; 
+    string key = month + "-" + year;           
+
+    cout << "Enter spending limit for " << key << ": ₹";
+    cin >> limit;
+
+    monthlyBudget[key] = limit;
+
+    cout << "Limit of ₹" << limit << " set for " << key << ".\n";
 }
 
 void viewTransactions(){
@@ -59,20 +107,11 @@ void viewTransactions(){
     }
     cout << endl;
 }
-string convertToLower(string s){
-    string converted = "";
-    for (int i = 0; i < s.length(); i++)
-    {
-        if(isupper(s[i])) converted += tolower(s[i]);
-        else converted += s[i];
-    }
-    return converted;
-}
 void showSummary() {
     vector<Transaction> filtered;
 
     int choice;
-     cout << "1. Full summary\n2. Filter by categories\n3. Custom date range\n4. Specific month\n5. Specific year\nPick: ";
+    cout << "1. Full summary\n2. Filter by categories\n3. Custom date range\n4. Specific month\n5. Specific year\nPick: ";
     cin >> choice;
     if(choice == 1) filtered = transactions;
     else if (choice == 2) {
@@ -191,12 +230,12 @@ void sortTransactions(){
         cin>>s;
         if(tolower(s) == 'a'){
             sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b){
-            return a.getAmount() < b.getAmount(); // ascending
+            return a.getAmount() < b.getAmount(); 
             });
         }
         else if(tolower(s) == 'd'){
             sort(transactions.begin(), transactions.end(), [](const Transaction &a, const Transaction &b){
-            return a.getAmount() > b.getAmount(); // descending
+            return a.getAmount() > b.getAmount(); 
             });
         }
     }
@@ -483,7 +522,8 @@ int main() {
         cout << "5. Edit Transaction\n";
         cout << "6. Delete Transaction\n";
         cout << "7. Search Transaction\n";
-        cout << "8. Exit\n";
+        cout << "8. Set Monthly Limit\n";
+        cout << "9. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -508,7 +548,11 @@ int main() {
                 break;
             case 7:
                 searchTransaction();
+                break;
             case 8:
+                setMonthlyLimit();
+                break;
+            case 9:
                 cout << "Exiting program.\n";
                 saveToFile("data.csv");
                 break;
