@@ -31,6 +31,73 @@ bool checkMonthlyLimit(const string &month_year, float amount) {
     return (monthlySpent[month_year] + amount <= monthlyBudget[month_year]);
 }
 
+void saveDataToFile(){
+    ofstream outFile("transactions.txt");
+    for(const auto &t: transactions){
+        outFile << t.getType()<<","<<t.getAmount()<<","<<t.getCategory()<<","<<t.getDate()<<"\n";
+    }
+    outFile.close();
+ofstream budgetFile("budget.txt");
+    for (const auto &entry : monthlyBudget) {
+        budgetFile << entry.first << "," << entry.second << "\n";
+    }
+    budgetFile.close();
+
+    ofstream spentFile("spent.txt");
+    for (const auto &entry : monthlySpent) {
+        spentFile << entry.first << "," << entry.second << "\n";
+    }
+    spentFile.close();
+
+    cout << "Data saved to file successfully.\n";
+}
+void loadDataFromFile(){
+    transactions.clear();
+    monthlyBudget.clear();
+    monthlySpent.clear();
+
+    ifstream inFile("transactions.txt");
+    string line;
+    while (getline(inFile, line))
+    {
+        stringstream ss(line);
+        string type, amountStr, category, date;
+        getline(ss, type, ',');
+        getline(ss, amountStr, ',');
+        getline(ss, category, ',');
+        getline(ss, date, ',');
+
+        float amount = stof(amountStr);
+        Transaction t(type, amount, category, date);
+        transactions.push_back(t);
+    }
+    inFile.close();
+
+    ifstream budgetFile("budget.txt");
+    while (getline(budgetFile, line))
+    {
+        stringstream ss(line);
+        string month, budgetStr;
+        getline(ss, month, ',');
+        getline(ss, budgetStr, '\n');
+        monthlyBudget[month] = stof(budgetStr);
+    }
+    budgetFile.close();
+
+    ifstream spentFile("spent.txt");
+    while (getline(spentFile, line))
+    {
+        stringstream ss(line);
+        string month, spentStr;
+        getline(ss, month, ',');
+        getline(ss, spentStr, '\n');
+        monthlySpent[month] = stof(spentStr);
+    }
+    spentFile.close();
+
+    cout<<"Data Loaded Successfully.\n";
+}
+
 void addTransaction() {
     string type, category, date;
     float amount;
@@ -511,6 +578,8 @@ void loadFromFile(const string &filename){
     }
 }
 int main() {
+    loadDataFromFile();
+
     int choice;
     loadFromFile("data.csv");
     do {
@@ -553,9 +622,10 @@ int main() {
                 setMonthlyLimit();
                 break;
             case 9:
+                saveDataToFile();
                 cout << "Exiting program.\n";
                 saveToFile("data.csv");
-                break;
+                return 0;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
