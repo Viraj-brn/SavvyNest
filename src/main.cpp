@@ -1,6 +1,6 @@
 #include<iostream>
 #include<vector>
-#include "Transaction.h"
+#include "../include/Transaction.h"
 #include<fstream>
 #include<sstream>
 #include<algorithm>
@@ -32,18 +32,22 @@ bool checkMonthlyLimit(const string &month_year, float amount) {
 }
 
 void saveDataToFile(){
-    ofstream outFile("transactions.txt");
+    ifstream src("../data/transactions.txt", ios::binary);
+    ofstream dst("../data/transactions_backup.txt", ios::binary);
+    dst << src.rdbuf();
+
+    ofstream outFile("../data/transactions.txt");
     for(const auto &t: transactions){
         outFile << t.getType()<<","<<t.getAmount()<<","<<t.getCategory()<<","<<t.getDate()<<"\n";
     }
     outFile.close();
-ofstream budgetFile("budget.txt");
+ofstream budgetFile("../data/budget.txt");
     for (const auto &entry : monthlyBudget) {
         budgetFile << entry.first << "," << entry.second << "\n";
     }
     budgetFile.close();
 
-    ofstream spentFile("spent.txt");
+    ofstream spentFile("../data/spent.txt");
     for (const auto &entry : monthlySpent) {
         spentFile << entry.first << "," << entry.second << "\n";
     }
@@ -56,7 +60,7 @@ void loadDataFromFile(){
     monthlyBudget.clear();
     monthlySpent.clear();
 
-    ifstream inFile("transactions.txt");
+    ifstream inFile("../data/transactions.txt");
     string line;
     while (getline(inFile, line))
     {
@@ -73,7 +77,7 @@ void loadDataFromFile(){
     }
     inFile.close();
 
-    ifstream budgetFile("budget.txt");
+    ifstream budgetFile("../data/budget.txt");
     while (getline(budgetFile, line))
     {
         stringstream ss(line);
@@ -84,7 +88,7 @@ void loadDataFromFile(){
     }
     budgetFile.close();
 
-    ifstream spentFile("spent.txt");
+    ifstream spentFile("../data/spent.txt");
     while (getline(spentFile, line))
     {
         stringstream ss(line);
@@ -145,21 +149,24 @@ void setMonthlyLimit() {
     cout << "Limit of ₹" << limit << " set for " << key << ".\n";
 }
 
-void viewTransactions(){
-    if(transactions.empty()){
-        cout<<"No transactions to display.\n";
+void viewTransactions() {
+    if (transactions.empty()) {
+        cout << "No transactions to display.\n";
         return;
     }
+
     string filterType, filterCategory;
-    cout<<"Filter by type(Income/Expense or All): ";
-    cin>>filterType;
-    cout<<"Filter by category(or All): ";
-    cin>>filterCategory;
+    cout << "Filter by type (Income / Expense / All): ";
+    cin >> filterType;
+    cout << "Filter by category (or All): ";
+    cin >> filterCategory;
 
     transform(filterType.begin(), filterType.end(), filterType.begin(), ::tolower);
     transform(filterCategory.begin(), filterCategory.end(), filterCategory.begin(), ::tolower);
 
-    cout << "\nFiltered Transaction History:\n";
+    cout << "\n========== Filtered Transaction History ==========\n";
+
+    int count = 0;
     for (const auto &t : transactions) {
         string tType = t.getType(), tCategory = t.getCategory();
         transform(tType.begin(), tType.end(), tType.begin(), ::tolower);
@@ -168,9 +175,16 @@ void viewTransactions(){
         bool matchType = (filterType == "all" || filterType == tType);
         bool matchCategory = (filterCategory == "all" || filterCategory == tCategory);
 
-        if(matchCategory && matchType){
+        if (matchCategory && matchType) {
+            cout << ++count << ". ";
             t.display();
         }
+    }
+    if (count == 0) {
+        cout << "No transactions matched your filter.\n";
+    } else {
+        cout << "===============================================\n";
+        cout << "Total Matching Transactions: " << count << "\n";
     }
     cout << endl;
 }
@@ -406,6 +420,7 @@ void editTransaction() {
 
         cout << "Undo more? (y/n): ";
         cin >> u;
+        if(deletedStack.empty()) cout<<"Nothing to undo. \n";
     }
 }
 void deleteTransaction() {
@@ -539,49 +554,10 @@ void searchTransaction() {
     }
 }
 
-
-void saveToFile(const string &filename){
-    ofstream file(filename);
-    if(!file){
-        cout<<"Could not open the file.\n";
-        return;
-    }
-    for(const Transaction &t: transactions){
-        file << t.getType() <<","
-             << t.getAmount() <<","
-             << t.getCategory() <<","
-             << t.getDate() <<"\n";
-    }
-    file.close();
-}
-void loadFromFile(const string &filename){
-    ifstream file("data.csv");
-    if(!file) {
-        cout<<"Could not open file.\n";
-        return;
-    }
-    string line;
-    while (getline(file, line))
-    {
-        stringstream ss(line);
-        string type, category, date, amountStr;
-        float amount;
-
-        getline(ss, type, ',');
-        getline(ss, amountStr, ',');
-        getline(ss, category, ',');
-        getline(ss, date, ',');      
-        
-        amount = stof(amountStr);
-        Transaction t(type, amount, category, date);
-        transactions.push_back(t);
-    }
-}
 int main() {
     loadDataFromFile();
 
     int choice;
-    loadFromFile("data.csv");
     do {
         cout << "\n====== Finance Tracker Menu ======\n";
         cout << "1. Add Transaction\n";
@@ -624,13 +600,12 @@ int main() {
             case 9:
                 saveDataToFile();
                 cout << "Exiting program.\n";
-                saveToFile("data.csv");
+                saveDataToFile();
                 return 0;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
-
-    } while (choice != 3);
-
+    } 
+    while (choice != 3);
     return 0;
 }

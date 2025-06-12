@@ -1,4 +1,4 @@
-#include "Transaction.h"
+#include "../include/Transaction.h"
 #include <iostream>
 #include<string>
 
@@ -13,7 +13,7 @@ std::string Transaction::getType() const {
 }
 float Transaction::getAmount() const {
     return amount;
-}
+}   
 std::string Transaction::getCategory() const {
     return category;
 }
