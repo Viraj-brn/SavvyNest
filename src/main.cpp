@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include "../include/Transaction.h"
+#include "../reports/graph.h"
 #include<fstream>
 #include<sstream>
 #include<algorithm>
@@ -568,7 +569,8 @@ int main() {
         cout << "6. Delete Transaction\n";
         cout << "7. Search Transaction\n";
         cout << "8. Set Monthly Limit\n";
-        cout << "9. Exit\n";
+        cout << "9 Generate Report\n";
+        cout << "10. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -597,15 +599,23 @@ int main() {
             case 8:
                 setMonthlyLimit();
                 break;
-            case 9:
+            case 9:{
+                int opt;
+                cout << "1. Monthly Expense Graph\n2. Category Spending Graph\nPick:";
+                cin>>opt;
+                if (opt == 1) generateMonthlyExpenseReport();
+                else if (opt == 2) generateCategoryReport();
+                else cout << "Invalid option.\n";
+                break;
+                }
+            case 10:
                 saveDataToFile();
                 cout << "Exiting program.\n";
-                saveDataToFile();
                 return 0;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
     } 
-    while (choice != 3);
+    while (choice <= 10);
     return 0;
 }
