@@ -10,6 +10,8 @@
 #include<string>
 #include<unordered_set>
 #include<unordered_map>
+#include<ctime>
+#include "../src/log.h"
 using namespace std;
 
 vector<Transaction> transactions;
@@ -17,6 +19,19 @@ stack<pair<int, Transaction>> deletedStack;
 unordered_map<string, float> monthlyBudget;
 unordered_map<string, float> monthlySpent;
 
+void writeLoginLog(){
+    ofstream log("logs.txt", ios::app);
+    time_t now = time(0);
+    log << "Login: " << ctime(&now);
+    log.close();
+}
+
+void writeLogoutLog(){
+    ofstream log("logs,txt", ios::app);
+    time_t now = time(0);
+    log << "Logout: " << ctime(&now) <<"\n";
+    log.close();
+}
 string convertToLower(string s){
     string converted = "";
     for (int i = 0; i < s.length(); i++)
@@ -445,9 +460,17 @@ void deleteTransaction() {
         if (c > transactions.size() || c <= 0) {
             cout << "Invalid input, transaction does not exist!!\n";
         } else {
-            deletedStack.push({c - 1, transactions[c - 1]});
-            transactions.erase(transactions.begin() + (c - 1));
-            cout << "Transaction deleted successfully.\n";
+            cout << "Are you sure you want to delete this transaction? (y/n): ";
+            char confirm;
+            cin >> confirm;
+
+            if (confirm == 'y' || confirm == 'Y') {
+                deletedStack.push({c - 1, transactions[c - 1]});
+                transactions.erase(transactions.begin() + (c - 1));
+                cout << "Transaction deleted successfully.\n";
+            } else {
+                cout << "Deletion cancelled.\n";
+            }
         }
 
         char o;
@@ -458,7 +481,6 @@ void deleteTransaction() {
         displayTransactions();
     }
 
-    // Undo prompt
     char u;
     cout << "Would you like to undo the last deletion(s)? (y/n): ";
     cin >> u;
@@ -466,20 +488,17 @@ void deleteTransaction() {
         auto [pos, trans] = deletedStack.top();
         deletedStack.pop();
 
-        // Safely reinsert at the correct position
         if (pos >= transactions.size()) {
             transactions.push_back(trans);
         } else {
             transactions.insert(transactions.begin() + pos, trans);
         }
-
         cout << "Undo successful.\n";
 
         cout << "Undo more? (y/n): ";
         cin >> u;
     }
 }
-
 void searchTransaction() {
     int r = 1;
     while (r) {
@@ -556,11 +575,12 @@ void searchTransaction() {
 }
 
 int main() {
+    writeLoginLog();
     loadDataFromFile();
 
     int choice;
     do {
-        cout << "\n====== Finance Tracker Menu ======\n";
+        cout << "\n====== SavvyNest Menu ======\n";
         cout << "1. Add Transaction\n";
         cout << "2. View Transactions\n";
         cout << "3. Show Summary\n";
@@ -610,7 +630,8 @@ int main() {
                 }
             case 10:
                 saveDataToFile();
-                cout << "Exiting program.\n";
+                writeLogoutLog();
+                cout << "Exiting SavvyNest.\n";
                 return 0;
             default:
                 cout << "Invalid choice. Try again.\n";
