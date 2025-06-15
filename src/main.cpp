@@ -272,7 +272,11 @@ void showSummary() {
     } 
     float total_income = 0.0f, total_expense = 0.0f;
     int inc_cnt = 0, exp_cnt = 0;
-    float mx_income = INT_MIN, mn_income = INT_MAX;
+    float mx_income = INT_MIN, mx_expense = INT_MAX;
+    if(filtered.empty()) {
+        cout<<"No transaction matched the filter.\n";
+        return;
+    }
     for (const auto &t : filtered) {
         string type = t.getType();
         transform(type.begin(), type.end(), type.begin(), ::tolower);
@@ -284,19 +288,19 @@ void showSummary() {
         else if (type == "expense") {
             exp_cnt++;
             total_expense += t.getAmount();
-            mn_income = min(mn_income, t.getAmount());
+            mx_expense = min(mx_expense, t.getAmount());
         }
     }
 
     float balance = total_income - total_expense;
 
-    cout << fixed << setprecision(2);
+    cout << fixed;
     cout << "\nSummary:\n";
-    cout << "Total Income  : ₹" << total_income <<"\t\tNumber of incomes: ₹" <<inc_cnt<< endl;
-    cout << "Total Expense : ₹" << total_expense <<"\t\tNumber of expenses: ₹" <<exp_cnt<< endl;
+    cout << "Total Income  : ₹" << total_income <<"\t\tNumber of incomes: " <<inc_cnt<< endl;
+    cout << "Total Expense : ₹" << total_expense <<"\t\tNumber of expenses: " <<exp_cnt<< endl;
     cout << "Net Balance   : ₹" << balance << endl<<endl;
     cout << "Highest Income: ₹" << mx_income<<endl;
-    cout << "Higest Expense: ₹" << mn_income<<endl;
+    cout << "Highest Expense: ₹" << mx_expense<<endl;
 }
 int convertDate(string date) {
     string arr[3];
@@ -590,6 +594,7 @@ int main() {
         cout << "7. Search Transaction\n";
         cout << "8. Set Monthly Limit\n";
         cout << "9 Generate Report\n";
+        cout << "10. Show Visual Summary\n";
         cout << "10. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
@@ -629,6 +634,9 @@ int main() {
                 break;
                 }
             case 10:
+                showVisualSummary();
+                break;
+            case 11:
                 saveDataToFile();
                 writeLogoutLog();
                 cout << "Exiting SavvyNest.\n";
