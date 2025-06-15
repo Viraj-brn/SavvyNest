@@ -133,17 +133,22 @@ void addTransaction() {
     string month_year = date.substr(3);
 
     if (convertToLower(type) == "expense") {
-        if (!checkMonthlyLimit(month_year, amount)) {
-            cout << "You are exceeding the monthly spending limit!\n";
-            return;
-        }
         monthlySpent[month_year] += amount;
-    }
 
+        if (monthlyBudget.find(month_year) != monthlyBudget.end()) {
+            float budget = monthlyBudget[month_year];
+            if (monthlySpent[month_year] > budget) {
+                cout << "Warning: You've exceeded your budget for " << month_year << "!\n";
+                cout << "Budget: ₹" << budget << " | Spent: ₹" << monthlySpent[month_year] << endl;
+            }
+        }
+    }
     Transaction newTransaction(type, amount, category, date);
     transactions.push_back(newTransaction);
+
     cout << "Transaction added successfully.\n";
 }
+
 
 void setMonthlyLimit() {
     string month, year;
