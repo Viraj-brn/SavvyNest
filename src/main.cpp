@@ -1,5 +1,6 @@
 #include<iostream>
 #include<vector>
+#include "../include/Investment.h"
 #include "../include/Transaction.h"
 #include "../reports/graph.h"
 #include<fstream>
@@ -12,6 +13,7 @@
 #include<unordered_map>
 #include<ctime>
 #include "../src/log.h"
+#include<cmath>
 using namespace std;
 
 vector<Transaction> transactions;
@@ -582,6 +584,42 @@ void searchTransaction() {
         }
     }
 }
+//Investment Simulator
+void investmentSimulator(){
+    float principal, rate;
+    int time;
+    string interestType;
+
+    cout << "\n--- Investment Simulator ---\n";
+    cout << "Enter the amount you want to invest (₹): ";
+    cin >> principal;
+
+    cout << "Enter annual interest rate (%): ";
+    cin >> rate;
+
+    cout << "Enter time period (in years): ";
+    cin >> time;
+
+    cout << "Choose interest type (Simple / Compound): ";
+    cin >> interestType;
+
+    float finalAmount = 0.0f;
+    if (convertToLower(interestType) == "simple") {
+        float interest = (principal * rate * time) / 100;
+        finalAmount = principal + interest;
+        cout << "\nSimple Interest Earned: ₹" << fixed << setprecision(2) << interest << endl;
+    }
+    else if (convertToLower(interestType) == "compound") {
+        finalAmount = principal * pow((1 + rate / 100), time);
+        cout << "\nCompound Interest Earned: ₹" << fixed << setprecision(2) << (finalAmount - principal) << endl;
+    }
+    else {
+        cout << "Invalid interest type entered!\n";
+        return;
+    }
+
+    cout << "Final Value after " << time << " years: ₹" << fixed << setprecision(2) << finalAmount << "\n\n";
+}
 
 int main() {
     writeLoginLog();
@@ -590,6 +628,7 @@ int main() {
     int choice;
     do {
         cout << "\n====== SavvyNest Menu ======\n";
+        cout << "0. Exit\n";
         cout << "1. Add Transaction\n";
         cout << "2. View Transactions\n";
         cout << "3. Show Summary\n";
@@ -600,11 +639,16 @@ int main() {
         cout << "8. Set Monthly Limit\n";
         cout << "9 Generate Report\n";
         cout << "10. Show Visual Summary\n";
-        cout << "10. Exit\n";
+        cout << "11. Investment Simulator\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
+            case 0:
+                saveDataToFile();
+                writeLogoutLog();
+                cout << "Exiting SavvyNest.\n";
+                return 0;
             case 1:
                 addTransaction();
                 break;
@@ -642,10 +686,8 @@ int main() {
                 showVisualSummary();
                 break;
             case 11:
-                saveDataToFile();
-                writeLogoutLog();
-                cout << "Exiting SavvyNest.\n";
-                return 0;
+                investmentSimulator();
+                break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
