@@ -11,7 +11,7 @@
         "src/Transaction.cpp",
         "reports/graph.cpp",
         "-o",
-        "savyynest.exe"
+        "savvynest.exe"
       ],
       "group": {
         "kind": "build",

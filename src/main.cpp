@@ -140,7 +140,7 @@ void addTransaction() {
             float budget = monthlyBudget[month_year];
             if (monthlySpent[month_year] > budget) {
                 cout << "Warning: You've exceeded your budget for " << month_year << "!\n";
-                cout << "Budget: ₹" << budget << " | Spent: ₹" << monthlySpent[month_year] << endl;
+                cout << "Budget: Rs." << budget << " | Spent: Rs." << monthlySpent[month_year] << endl;
             }
         }
     }
@@ -163,12 +163,12 @@ void setMonthlyLimit() {
     if (month.size() == 1) month = "0" + month; 
     string key = month + "-" + year;           
 
-    cout << "Enter spending limit for " << key << ": ₹";
+    cout << "Enter spending limit for " << key << ": Rs.";
     cin >> limit;
 
     monthlyBudget[key] = limit;
 
-    cout << "Limit of ₹" << limit << " set for " << key << ".\n";
+    cout << "Limit of Rs." << limit << " set for " << key << ".\n";
 }
 
 void viewTransactions() {
@@ -302,11 +302,11 @@ void showSummary() {
 
     cout << fixed;
     cout << "\nSummary:\n";
-    cout << "Total Income  : ₹" << total_income <<"\t\tNumber of incomes: " <<inc_cnt<< endl;
-    cout << "Total Expense : ₹" << total_expense <<"\t\tNumber of expenses: " <<exp_cnt<< endl;
-    cout << "Net Balance   : ₹" << balance << endl<<endl;
-    cout << "Highest Income: ₹" << mx_income<<endl;
-    cout << "Highest Expense: ₹" << mx_expense<<endl;
+    cout << "Total Income  : Rs." << total_income <<"\t\tNumber of incomes: " <<inc_cnt<< endl;
+    cout << "Total Expense : Rs." << total_expense <<"\t\tNumber of expenses: " <<exp_cnt<< endl;
+    cout << "Net Balance   : Rs." << balance << endl<<endl;
+    cout << "Highest Income: Rs." << mx_income<<endl;
+    cout << "Highest Expense: Rs." << mx_expense<<endl;
 }
 int convertDate(string date) {
     string arr[3];
@@ -590,7 +590,7 @@ void investmentSimulator(){
     string interestType;
 
     cout << "\n--- Investment Simulator ---\n";
-    cout << "Enter the amount you want to invest (₹): ";
+    cout << "Enter the amount you want to invest (Rs.): ";
     cin >> principal;
 
     cout << "Enter annual interest rate (%): ";
@@ -606,18 +606,18 @@ void investmentSimulator(){
     if (convertToLower(interestType) == "simple") {
         float interest = (principal * rate * time) / 100;
         finalAmount = principal + interest;
-        cout << "\nSimple Interest Earned: ₹" << fixed << setprecision(2) << interest << endl;
+        cout << "\nSimple Interest Earned: Rs." << fixed << setprecision(2) << interest << endl;
     }
     else if (convertToLower(interestType) == "compound") {
         finalAmount = principal * pow((1 + rate / 100), time);
-        cout << "\nCompound Interest Earned: ₹" << fixed << setprecision(2) << (finalAmount - principal) << endl;
+        cout << "\nCompound Interest Earned: Rs." << fixed << setprecision(2) << (finalAmount - principal) << endl;
     }
     else {
         cout << "Invalid interest type entered!\n";
         return;
     }
 
-    cout << "Final Value after " << time << " years: ₹" << fixed << setprecision(2) << finalAmount << "\n\n";
+    cout << "Final Value after " << time << " years: Rs." << fixed << setprecision(2) << finalAmount << "\n\n";
 }
 
 int main() {
