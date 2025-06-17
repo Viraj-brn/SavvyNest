@@ -1,6 +1,5 @@
 #include<iostream>
 #include<vector>
-#include "../include/Investment.h"
 #include "../include/Transaction.h"
 #include "../reports/graph.h"
 #include<fstream>
@@ -19,7 +18,7 @@ using namespace std;
 vector<Transaction> transactions;
 stack<pair<int, Transaction>> deletedStack;
 unordered_map<string, float> monthlyBudget;
-unordered_map<string, float> monthlySpent;
+unordered_map<string, float> monthlySpent; 
 
 void writeLoginLog(){
     ofstream log("logs.txt", ios::app);

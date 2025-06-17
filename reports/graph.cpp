@@ -9,7 +9,7 @@
 
 extern std::vector<Transaction> transactions;
 
-void genereateMonthlyExpenseReport(){
+void generateMonthlyExpenseReport(){
     std::map<std::string, float> monthlyTotals;
 
     for(const auto &t: transactions){

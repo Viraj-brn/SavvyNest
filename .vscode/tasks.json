@@ -2,14 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build SavvyNest",
+      "label": "Build Finance Tracker",
       "type": "shell",
       "command": "g++",
       "args": [
-        "main.cpp",
-        "Transaction.cpp",
+        "-g",
+        "src/main.cpp",
+        "src/Transaction.cpp",
+        "reports/graph.cpp",
         "-o",
-        "SavvyNest.exe"
+        "savyynest.exe"
       ],
       "group": {
         "kind": "build",
