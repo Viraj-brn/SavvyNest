@@ -28,7 +28,7 @@ void writeLoginLog(){
 }
 
 void writeLogoutLog(){
-    ofstream log("logs,txt", ios::app);
+    ofstream log("logs.txt", ios::app);
     time_t now = time(0);
     log << "Logout: " << ctime(&now) <<"\n";
     log.close();
@@ -300,7 +300,7 @@ void showSummary() {
 
     float balance = total_income - total_expense;
 
-    cout << fixed;
+    cout << fixed<<setprecision(2);
     cout << "\nSummary:\n";
     cout << "Total Income  : Rs." << total_income <<"\t\tNumber of incomes: " <<inc_cnt<< endl;
     cout << "Total Expense : Rs." << total_expense <<"\t\tNumber of expenses: " <<exp_cnt<< endl;
