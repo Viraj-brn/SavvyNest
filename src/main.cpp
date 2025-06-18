@@ -49,22 +49,22 @@ bool checkMonthlyLimit(const string &month_year, float amount) {
 }
 
 void saveDataToFile(){
-    ifstream src("../data/transactions.txt", ios::binary);
-    ofstream dst("../data/transactions_backup.txt", ios::binary);
+    ifstream src("data/transactions.txt", ios::binary);
+    ofstream dst("data/transactions_backup.txt", ios::binary);
     dst << src.rdbuf();
 
-    ofstream outFile("../data/transactions.txt");
+    ofstream outFile("data/transactions.txt");
     for(const auto &t: transactions){
         outFile << t.getType()<<","<<t.getAmount()<<","<<t.getCategory()<<","<<t.getDate()<<"\n";
     }
     outFile.close();
-ofstream budgetFile("../data/budget.txt");
+ofstream budgetFile("data/budget.txt");
     for (const auto &entry : monthlyBudget) {
         budgetFile << entry.first << "," << entry.second << "\n";
     }
     budgetFile.close();
 
-    ofstream spentFile("../data/spent.txt");
+    ofstream spentFile("data/spent.txt");
     for (const auto &entry : monthlySpent) {
         spentFile << entry.first << "," << entry.second << "\n";
     }
@@ -77,7 +77,7 @@ void loadDataFromFile(){
     monthlyBudget.clear();
     monthlySpent.clear();
 
-    ifstream inFile("../data/transactions.txt");
+    ifstream inFile("data/transactions.txt");
     string line;
     while (getline(inFile, line))
     {
@@ -94,7 +94,7 @@ void loadDataFromFile(){
     }
     inFile.close();
 
-    ifstream budgetFile("../data/budget.txt");
+    ifstream budgetFile("data/budget.txt");
     while (getline(budgetFile, line))
     {
         stringstream ss(line);
@@ -105,7 +105,7 @@ void loadDataFromFile(){
     }
     budgetFile.close();
 
-    ifstream spentFile("../data/spent.txt");
+    ifstream spentFile("data/spent.txt");
     while (getline(spentFile, line))
     {
         stringstream ss(line);

@@ -18,6 +18,48 @@
         "isDefault": true
       },
       "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Build GUI",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-g",
+        "gui/gui.cpp",
+
+        // Dear ImGui core
+        "gui/imgui/imgui.cpp",
+        "gui/imgui/imgui_demo.cpp",
+        "gui/imgui/imgui_draw.cpp",
+        "gui/imgui/imgui_tables.cpp",
+        "gui/imgui/imgui_widgets.cpp",
+
+        // ImGui-SFML binding
+        "gui/imgui-sfml/imgui-SFML.cpp",
+
+        // Include paths
+        "-Igui/imgui",
+        "-Igui/imgui-sfml",
+        "-IC:/msys64/mingw64/include",
+
+        // Linker paths
+        "-LC:/msys64/mingw64/lib",
+
+        // Link SFML (static or dynamic)
+        "-lsfml-graphics",
+        "-lsfml-window",
+        "-lsfml-system",
+        "-lgdi32",
+
+        // Output file
+        "-o",
+        "savvynest_gui.exe"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": ["$gcc"]
     }
   ]
 }
