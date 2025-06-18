@@ -16,13 +16,13 @@ No more features are planned for the 2.x release series.
 Dependencies
 -----
 
-* [SFML](https://github.com/SFML/SFML) >= 3.0.0
-* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.91.1
+* [SFML](https://github.com/SFML/SFML) >= 2.5.0
+* [Dear ImGui](https://github.com/ocornut/imgui) >= 1.89
 
 Contributing
 -----
 
-* The code is written in C++17 (SFML 3 uses C++17, Dear ImGui has started using C++11 since 2022)
+* The code is written in C++11 (stable SFML is still C++03, Dear ImGui has started using C++11 since 2022)
 * The code should be formatted via [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) using `.clang-format` provided in the root of this repository
 
 How-to
@@ -73,8 +73,9 @@ Using ImGui-SFML in your code
     - Poll and process events:
 
         ```cpp
-        while (const auto event = window.pollEvent()) {
-            ImGui::SFML::ProcessEvent(window, *event);
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(window, event);
             ...
         }
         ```
@@ -104,7 +105,7 @@ See example file [here](https://github.com/SFML/imgui-sfml/blob/master/examples/
 #include <SFML/Window/Event.hpp>
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({640, 480}), "ImGui + SFML = <3");
+    sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
@@ -113,10 +114,11 @@ int main() {
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
-        while (const auto event = window.pollEvent()) {
-            ImGui::SFML::ProcessEvent(window, *event);
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(window, event);
 
-            if (event->is<sf::Event::Closed>()) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
             }
         }

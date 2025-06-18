@@ -2,24 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build Finance Tracker",
-      "type": "shell",
-      "command": "g++",
-      "args": [
-        "-g",
-        "src/main.cpp",
-        "src/Transaction.cpp",
-        "reports/graph.cpp",
-        "-o",
-        "savvynest.exe"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": ["$gcc"]
-    },
-    {
       "label": "Build GUI",
       "type": "shell",
       "command": "g++",
@@ -27,14 +9,14 @@
         "-g",
         "gui/gui.cpp",
 
-        // Dear ImGui core
+        // ImGui source files
         "gui/imgui/imgui.cpp",
-        "gui/imgui/imgui_demo.cpp",
         "gui/imgui/imgui_draw.cpp",
         "gui/imgui/imgui_tables.cpp",
         "gui/imgui/imgui_widgets.cpp",
+        "gui/imgui/imgui_demo.cpp",
 
-        // ImGui-SFML binding
+        // ImGui-SFML source
         "gui/imgui-sfml/imgui-SFML.cpp",
 
         // Include paths
@@ -45,19 +27,20 @@
         // Linker paths
         "-LC:/msys64/mingw64/lib",
 
-        // Link SFML (static or dynamic)
+        // Libraries
         "-lsfml-graphics",
         "-lsfml-window",
         "-lsfml-system",
+        "-lopengl32",
         "-lgdi32",
 
-        // Output file
+        // Output binary
         "-o",
         "savvynest_gui.exe"
       ],
       "group": {
         "kind": "build",
-        "isDefault": false
+        "isDefault": true
       },
       "problemMatcher": ["$gcc"]
     }

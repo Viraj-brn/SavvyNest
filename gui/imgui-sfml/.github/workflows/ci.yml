@@ -1,11 +1,6 @@
 name: CI
 
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
-  schedule:
-    - cron:  '15 9 * * 2'
+on: [push, pull_request, workflow_dispatch]
 
 concurrency:
   group: environment-${{github.ref}}
@@ -29,7 +24,7 @@ jobs:
         - { name: Windows Clang,   os: windows-2022, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         - { name: Linux GCC,       os: ubuntu-22.04, flags: -GNinja }
         - { name: Linux Clang,     os: ubuntu-22.04, flags: -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS Clang,     os: macos-14,     flags: -GNinja }
+        - { name: macOS Clang,     os: macos-13,     flags: -GNinja -DIMGUI_SFML_BUILD_TESTING=OFF }
         config:
         - { name: Shared, flags: -DBUILD_SHARED_LIBS=ON -DIMGUI_SFML_BUILD_TESTING=OFF }
         - { name: Static, flags: -DBUILD_SHARED_LIBS=OFF }
@@ -37,21 +32,21 @@ jobs:
         - { name: Release }
         - { name: Debug }
         imgui:
-        - { version: 1.91.1, flags: -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON }
-        - { version: 1.91.6 }
+        - { version: 1.89, flags: -DIMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS=ON }
+        - { version: 1.91.5 }
 
     steps:
     - name: Get CMake and Ninja
       uses: lukka/get-cmake@latest
       with:
-        cmakeVersion: ${{ runner.os == 'Windows' && '3.24' || '3.22' }}
+        cmakeVersion: 3.22
         ninjaVersion: latest
 
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt update
-        sudo apt install llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
+        sudo apt install llvm xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev
 
     - name: Checkout ImGui
       uses: actions/checkout@v4
@@ -65,7 +60,7 @@ jobs:
       with:
         repository: SFML/SFML
         path: sfml
-        ref: 3.0.0
+        ref: 2.6.0
 
     - name: Configure SFML
       run: |
@@ -74,6 +69,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
           -DSFML_BUILD_AUDIO=OFF \
           -DSFML_BUILD_NETWORK=OFF \
+          -DWARNINGS_AS_ERRORS=OFF \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}}
 
@@ -88,11 +84,17 @@ jobs:
     - name: Configure ImGui-SFML
       run: |
         cmake -S imgui-sfml -B imgui-sfml/build \
-          --preset dev \
           -DCMAKE_BUILD_TYPE=${{matrix.type.name}} \
+          -DCMAKE_CXX_EXTENSIONS=OFF \
+          -DCMAKE_CXX_STANDARD=11 \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
           -DIMGUI_DIR=$GITHUB_WORKSPACE/imgui \
           -DSFML_ROOT=$GITHUB_WORKSPACE/sfml/install \
+          -DIMGUI_SFML_BUILD_EXAMPLES=ON \
+          -DIMGUI_SFML_BUILD_TESTING=ON \
+          -DIMGUI_SFML_ENABLE_WARNINGS=ON \
           ${{matrix.platform.flags}} \
           ${{matrix.config.flags}} \
           ${{matrix.imgui.flags}}

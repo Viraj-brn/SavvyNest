@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.22)
-project(imgui_sfml VERSION 3.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.13)
+project(imgui_sfml VERSION 2.6.1 LANGUAGES CXX)
 
 option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" ON)
+option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 option(IMGUI_SFML_ENABLE_WARNINGS "Enable compiler warnings" OFF)
 option(IMGUI_SFML_DISABLE_OBSOLETE_FUNCTIONS "Disable obsolete ImGui functions" OFF)
 
@@ -26,7 +27,7 @@ if(IMGUI_SFML_FIND_SFML)
   if(NOT BUILD_SHARED_LIBS)
     set(SFML_STATIC_LIBRARIES ON)
   endif()
-  find_package(SFML 3 REQUIRED COMPONENTS Graphics)
+  find_package(SFML 2.5 REQUIRED COMPONENTS graphics)
 endif()
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
@@ -38,7 +39,7 @@ if(NOT IMGUI_DIR)
 endif()
 
 # This uses FindImGui.cmake provided in ImGui-SFML repo for now
-find_package(ImGui 1.91.1 REQUIRED)
+find_package(ImGui 1.89 REQUIRED)
 
 # These headers will be installed alongside ImGui-SFML
 set(IMGUI_PUBLIC_HEADERS
@@ -50,6 +51,10 @@ set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
   ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
 )
+
+if(IMGUI_SFML_IMGUI_DEMO)
+  list(APPEND IMGUI_SOURCES ${IMGUI_DEMO_SOURCES})
+endif()
 
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer
 # (unless the OpenGL_GL_PREFERENCE was explicitly set)
@@ -70,7 +75,8 @@ target_include_directories(ImGui-SFML PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(ImGui-SFML PUBLIC SFML::Graphics OpenGL::GL)
+target_compile_features(ImGui-SFML PUBLIC cxx_std_11)
+target_link_libraries(ImGui-SFML PUBLIC sfml-graphics OpenGL::GL)
 if(WIN32 AND MINGW)
   target_link_libraries(ImGui-SFML PUBLIC imm32)
 endif()
