@@ -8,6 +8,7 @@
       "args": [
         "-g",
         "gui/gui.cpp",
+        "src/Transaction.cpp",         
 
         // ImGui source files
         "gui/imgui/imgui.cpp",
@@ -20,6 +21,7 @@
         "gui/imgui-sfml/imgui-SFML.cpp",
 
         // Include paths
+        "-Iinclude",
         "-Igui/imgui",
         "-Igui/imgui-sfml",
         "-IC:/msys64/mingw64/include",
